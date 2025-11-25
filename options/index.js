@@ -12,9 +12,18 @@ document.addEventListener('DOMContentLoaded', async function(){
 		if(json.length > 0){
 			const device = json[0];
 			const encodedfrontendUrl = device['devtoolsFrontendUrl'];
-			const newUrl = replaceUrls(encodedfrontendUrl, debuggerUrl, domain);
-			iframeE.classList.remove('iframehidden');
-			iframeE.src = newUrl;
+			let newUrl = "";
+			if(encodedfrontendUrl.startsWith("/debugger-frontend/rn_fusebox.html")){
+				iframeE.classList.remove('iframehidden');
+				const nURL = new URL(httpUrl+encodedfrontendUrl);
+				if(nURL.href){
+					iframeE.src = nURL.href;					
+				}
+			}else{
+				newUrl = replaceUrls(encodedfrontendUrl, debuggerUrl, domain);
+				iframeE.classList.remove('iframehidden');
+				iframeE.src = newUrl;				
+			}
 			//const decodedfrontendUrl = decodeURIComponent(encodedfrontendUrl);
 		}
 	}
@@ -22,10 +31,10 @@ document.addEventListener('DOMContentLoaded', async function(){
 
 function replaceUrls(originalUrl, newBaseUrl, newWsUrl) {
   // Parse the original URL
-  let url = new URL(originalUrl);
+  let url = new URL(newBaseUrl);
 
   // Replace the base URL
-  url.href = newBaseUrl + url.search;
+  url.pathname = originalUrl;
 
   // Replace the WebSocket URL using a regular expression
   let searchParams = new URLSearchParams(url.search);
